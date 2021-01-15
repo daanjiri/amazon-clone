@@ -3,27 +3,28 @@ const express = require("express");
 const cors = require("cors");
 
 const stripe = require("stripe")(
-  "sk_test_51I8YTRAku80oCRQE6F3nMQ1MF6PorN9AXQUTy2RzcNyZLMUAXKBDx2ShJ6D71ZkTyi3ZVtZm9umH3GIVC39hcYX900ccogsp4P"
+    // eslint-disable-next-line max-len
+    "sk_test_51I8YTRAku80oCRQE6F3nMQ1MF6PorN9AXQUTy2RzcNyZLMUAXKBDx2ShJ6D71ZkTyi3ZVtZm9umH3GIVC39hcYX900ccogsp4P",
 );
 
-//API
+// API
 
 // App config
 const app = express();
 // Middlewares
-app.use(cors({ origin: true }));
+app.use(cors({origin: true}));
 app.use(express.json());
 
-//API routes
+// API routes
 
-app.post("/", (req, res) => {
+app.get("/", (req, res) => {
   res.status(200).send("funciona");
 });
 
 app.post("/payments/pagar", async (request, response) => {
   const total = request.query.total;
 
-  console.log("payment request recieved boom!!!", total);
+  console.log("payment request recieved boom!!!>>>", total);
 
   const paymentIntent = await stripe.paymentIntents.create({
     amount: total,
@@ -35,7 +36,7 @@ app.post("/payments/pagar", async (request, response) => {
   });
 });
 
-//Listen command
+// Listen command
 exports.api = functions.https.onRequest(app);
 
-//http://localhost:5001/challenge-7df2f/us-central1/api
+// http://localhost:5001/challenge-7df2f/us-central1/api

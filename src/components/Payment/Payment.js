@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo, useCallback } from "react";
 import "./Payment.css";
 import { useStateValue } from "../../StateProvider";
 import CheckoutProduct from "../CheckoutProduct/CheckoutProduct";
@@ -9,6 +9,7 @@ import CurrencyFormat from "react-currency-format";
 import { getBasketTotal } from "../../reducer";
 import axios from "../../axios";
 import { useHistory } from "react-router-dom";
+import { db } from "../../firebase";
 
 function Payment() {
   const [{ basket, user }, dispatch] = useStateValue();
@@ -37,11 +38,13 @@ function Payment() {
     };
 
     getClientSecret();
+    console.log("useeffect rerender");
   }, [basket]);
 
   console.log("the secret is >>>>", clientSecret);
 
   const handleSubmit = async (e) => {
+    console.log("rederiza");
     //do all stripe stuff
     e.preventDefault();
     setProcessing(true);
@@ -54,16 +57,45 @@ function Payment() {
       })
       .then(({ paymentIntent }) => {
         //payment intent == payment confirmation
+
+        db.collection("users")
+          .doc(user?.uid)
+          .collection("orders")
+          .doc(paymentIntent.id)
+          .set({
+            basket: basket,
+            amount: paymentIntent.amount,
+            created: paymentIntent.created,
+          });
+
         setSucceeded(true);
         setError(null);
         setProcessing(false);
         history.replace("./orders");
+
+        dispatch({
+          type: "EMPTY_BASKET",
+        });
       });
   };
 
+  /* const handleChange = useCallback(
+    (e) => {
+      setDisabled(e?.target);
+      console.log(disabled);
+      console.log("handle change render", e);
+      //setError(e.error ? e.error.message : "");
+    },
+    [disabled]
+  ); */
+
   const handleChange = (e) => {
-    setDisabled(e.empty);
-    setError(e.error ? e.error.message : "");
+    if (disabled === e.complete) {
+      console.log("primero", e.complete);
+      setDisabled(!e?.complete);
+
+      console.log("ultimo", e.complete);
+    }
   };
 
   return (
@@ -87,16 +119,20 @@ function Payment() {
             <h3>Review items and delivery</h3>
           </div>
           <div className="payment__items">
-            {basket.map((item) => (
-              <CheckoutProduct
-                id={item.id}
-                title={item.title}
-                price={item.price}
-                rating={item.rating}
-                image={item.image}
-                key={new Date() + item.id}
-              />
-            ))}
+            {console.log("basket", basket)}
+            {basket.map((item, index) => {
+              console.log("producto", index);
+              return (
+                <CheckoutProduct
+                  id={item.id}
+                  title={item.title}
+                  price={item.price}
+                  rating={item.rating}
+                  image={item.image}
+                  key={new Date() + index}
+                />
+              );
+            })}
           </div>
         </div>
         <div className="payment__section">

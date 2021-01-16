@@ -1,6 +1,7 @@
 export const initialState = {
   basket: [],
   user: null,
+  searchfield: "",
 };
 
 //selector
@@ -10,6 +11,11 @@ export const getBasketTotal = (basket) =>
 const reducer = (state, action) => {
   console.log(action);
   switch (action.type) {
+    case 'UPDATE_SEARCHFIELD':
+      return{
+        ...state,
+        searchfield: action.payload
+      }
     case "EMPTY_BASKET":
       return {
         ...state,

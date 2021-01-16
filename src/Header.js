@@ -14,6 +14,15 @@ function Header() {
       auth.signOut();
     }
   };
+
+  const handleSearchChange = (e) => {
+    console.log(e.target.value);
+    dispatch({
+      type: "UPDATE_SEARCHFIELD",
+      payload: e.target.value,
+    });
+  };
+
   return (
     <div className="header">
       <Link to="/">
@@ -25,7 +34,11 @@ function Header() {
       </Link>
 
       <div className="header__search">
-        <input className="header__searchInput" type="text" />
+        <input
+          className="header__searchInput"
+          type="text"
+          onChange={handleSearchChange}
+        />
         <SearchIcon className="header__searchIcon" />
       </div>
 
